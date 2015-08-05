@@ -1,27 +1,108 @@
-## Laravel PHP Framework
+#Basic Idea
 
-[![Build Status](https://travis-ci.org/laravel/framework.svg)](https://travis-ci.org/laravel/framework)
-[![Total Downloads](https://poser.pugx.org/laravel/framework/d/total.svg)](https://packagist.org/packages/laravel/framework)
-[![Latest Stable Version](https://poser.pugx.org/laravel/framework/v/stable.svg)](https://packagist.org/packages/laravel/framework)
-[![Latest Unstable Version](https://poser.pugx.org/laravel/framework/v/unstable.svg)](https://packagist.org/packages/laravel/framework)
-[![License](https://poser.pugx.org/laravel/framework/license.svg)](https://packagist.org/packages/laravel/framework)
+- [Uses of Modal](#uses)
+- [What are needed](#requirement)
+- [Modal file](#modal)
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable, creative experience to be truly fulfilling. Laravel attempts to take the pain out of development by easing common tasks used in the majority of web projects, such as authentication, routing, sessions, queueing, and caching.
 
-Laravel is accessible, yet powerful, providing powerful tools needed for large, robust applications. A superb inversion of control container, expressive migration system, and tightly integrated unit testing support give you the tools you need to build any application with which you are tasked.
+---
+<a name="uses"></a>
+## Uses of Modal:
+  
+  Generally we use modal for confirmation message and to laod a form to edit or update an existing item.
+  
+---
+<a name="requirement"></a>
+## What are needed:
+  - [Laravel](http://laravel.com/)
+  - [jQuery](https://jquery.com/)
+  - [Bootstrap](http://getbootstrap.com/)
+  
 
-## Official Documentation
+<a name="modal"></a>
+## Modal File:
 
-Documentation for the framework can be found on the [Laravel website](http://laravel.com/docs).
+- form-modal.blade.php
 
-## Contributing
+```
+<div class="modal fade" id="form-modal" tabindex="8" role="dialog" aria-labelledby="form-modal" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="form-modal">{{$title}}</h4>
+            </div>
+            <div class="modal-body" >
+                @yield('body')
+            </div>
+        </div>
+    </div>
+</div>
+```
+The body of this form-modal will be loaded by using the followinng button's data-url :
+```
+  <button class="btn btn-info load-form-modal" data-url="{{your url}}" data-toggle ="modal" data-target='#form-modal' >
+                        Edit
+                    </button>
+```
+- confirmation-modal.blade.php
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](http://laravel.com/docs/contributions).
+```
+<div class="modal fade" id="confirmation-modal" tabindex="-1" role="dialog" aria-labelledby="confirmation-modal-title">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="confirmation-modal-title">{{ $title }}</h4>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure about this action?</p>
+            </div>
+            <div class="modal-footer">
+                <!-- delete form -->
+                {!! Form::open(['url' => '', 'method' => 'delete']) !!}
+                <button type="button" class="btn btn-primary" data-dismiss="modal">close</button>
+                <button type="submit" class="btn btn-danger">confirm</button>
+                {!! Form::close() !!}
+            </div>
+        </div>
+    </div>
+</div>
+```
+The action of modal's  will be replaced by using the followinng button's data-url :
+```
+  <button class="btn btn-danger load-confirmation-modal" data-url="{{ item delete url }}" data-toggle ="modal" data-target='#confirmation-modal' >
+                        Delete
+                    </button>
+```
+## js Script:
+```load-confirmation-modal``` and ```load-form-modal``` class of button are used to handle the functionality.
 
-## Security Vulnerabilities
+- script.js file is 
+```
+/**
+ * Created by mahbub on 8/5/15.
+ */
+var Modal = {
+    init: function () {
+        this.initEditModal();
+        this.initConfirmationModal();
+    },
+    initEditModal: function() {
+        $(document).on('click', '.load-form-modal', function(event){
+            console.log('Modal: '+ $(this).attr('data-url'));
+            $('#form-modal .modal-body').load($(this).attr('data-url'));
+            event.preventDefault();
+        });
+    },
+    initConfirmationModal: function() {
+        $(document).on('click', '.load-confirmation-modal', function(event){
+            $('#confirmation-modal form').attr('action', $(this).attr('data-url'));
+            event.preventDefault();
+        });
+    }
+};
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell at taylor@laravel.com. All security vulnerabilities will be promptly addressed.
-
-### License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT)
+Modal.init();
+```
